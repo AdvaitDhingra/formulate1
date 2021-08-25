@@ -59,5 +59,24 @@ def toast(ptnode):  # Recursively convert parsing tree (PT) into abstract syntax
     else:
         return toast(ptnode.children[0])    # many other cases, all of them simple pass-throughs
 
-print(toast(parser.parse("2 + 2")))
+# run the operation
+
+
+def run(astnode, symbols):
+    if isinstance(astnode, Literal):
+        return astnode.value
+
+    elif isinstance(astnode, Symbol):
+        return symbols[astnode.symbol]
+
+    elif isinstance(astnode, Call):
+        function = run(astnode.function, symbols)
+        arguments = [run(x, symbols) for x in astnode.arguments]
+        return function(*arguments)
+
+import math, operator
+symbols = {"add": operator.add, "sub": operator.sub, "mul": operator.mul, "div": operator.truediv,
+           "pos": operator.pos, "neg": operator.neg, "pow": math.pow, "sqrt": math.sqrt, "x": 5}
+           
+print(run(toast(parser.parse("2 + 2")), symbols))
 
