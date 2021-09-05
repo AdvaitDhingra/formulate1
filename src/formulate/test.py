@@ -1,24 +1,11 @@
 import lark
 
-# The Grammer
-
-grammer = lark.Lark(r'''
-
+parser = lark.Lark(r'''
 start: expression
 
-expression: pow 
-          | addition
-          | subtraction
-          | multiplication
-          | division
-
-pow: atom ["**" atom | "^" atom]
-addition: (atom "+" atom)*
-subtraction: (atom "-" atom)*
-division : (atom "/" atom)*
-multiplication: (atom "*" atom)*
-atom: "(" expression ")" | NUMBER -> literal
-
+expression: pow
+pow:     atom ["**" atom | "^" atom]
+atom:    "(" expression ")" | NUMBER -> literal
 
 %import common.CNAME
 %import common.NUMBER
@@ -41,11 +28,6 @@ def _to_python(node, out):
     _to_python(node.children[0], out)
     out.append("**")
     _to_python(node.children[1], out)
-  
-  elif node.data == "addition":
-    _to_python(node.children[0], out)
-    out.append("+")
-    _to_python(node.children[1], out)
 
   elif node.data == "literal":
     assert len(node.children) == 1
@@ -60,5 +42,4 @@ def to_python(parsing_tree):
   _to_python(parsing_tree, out)
   return "".join(out)
 
-print(grammer.parse("1+1").pretty())
   
